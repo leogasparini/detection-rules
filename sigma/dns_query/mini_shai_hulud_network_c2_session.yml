@@ -1,0 +1,28 @@
+title: Mini Shai-Hulud Supply-Chain Malware - Network C2 via Session
+id: ac5g4e3f-7f9d-6gbc-d8ea-3h4c5f6g7h8c
+status: experimental
+description: Detects network connections to the Session P2P exfiltration infrastructure used by the Mini Shai-Hulud campaign.
+references:
+    - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
+author: SecEng
+date: 2026-05-12
+tags:
+    - attack.command-and-control
+    - attack.t1071.001
+    - attack.exfiltration
+    - attack.t1048
+logsource:
+    category: dns_query
+    product: windows
+detection:
+    selection_session_exfil:
+        QueryName|contains:
+            - 'filev2.getsession.org'
+            - 'getsession.org'
+    selection_attacker_infra:
+        QueryName|contains:
+            - 'git-tanstack.com'
+    condition: selection_session_exfil or selection_attacker_infra
+falsepositives:
+    - Legitimate Session messenger usage (for getsession.org)
+level: high

@@ -1,0 +1,39 @@
+title: Mini Shai-Hulud Supply-Chain Malware - File Creation
+id: 8a3f2c1e-5d7b-4e9a-b6c8-1f2a3d4e5f6a
+status: experimental
+description: Detects file creation events associated with the Mini Shai-Hulud npm/PyPI supply-chain attack campaign targeting TanStack, Mistral AI, OpenSearch, and Guardrails AI packages.
+references:
+    - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
+    - https://socket.dev/supply-chain-attacks/mini-shai-hulud
+author: SecEng
+date: 2026-05-12
+tags:
+    - attack.initial-access
+    - attack.t1195.002
+    - attack.execution
+    - attack.t1059.007
+    - attack.persistence
+    - attack.t1547.004
+    - attack.credential-access
+    - attack.t1552.001
+logsource:
+    category: file_event
+    product: windows
+detection:
+    selection_malware_files:
+        TargetFilename|endswith:
+            - '\router_init.js'
+            - '\router_runtime.js'
+            - '\tanstack_runner.js'
+    selection_persistence_claude:
+        TargetFilename|contains:
+            - '\.claude\router_runtime.js'
+            - '\.claude\setup.mjs'
+    selection_persistence_vscode:
+        TargetFilename|contains|all:
+            - '\.vscode\'
+            - 'setup.mjs'
+    condition: selection_malware_files or selection_persistence_claude or selection_persistence_vscode
+falsepositives:
+    - Legitimate TanStack router development (check file hash against IOCs)
+level: critical

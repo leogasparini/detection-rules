@@ -1,0 +1,35 @@
+title: Mini Shai-Hulud Supply-Chain Malware - Process Execution
+id: 9b4f3d2e-6e8c-5fab-c7d9-2g3b4e5f6g7b
+status: experimental
+description: Detects process execution patterns associated with the Mini Shai-Hulud malware, including lifecycle hook execution and daemonized Node.js processes.
+references:
+    - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
+author: SecEng
+date: 2026-05-12
+tags:
+    - attack.execution
+    - attack.t1059.007
+    - attack.t1204.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_bun_runner:
+        CommandLine|contains|all:
+            - 'bun'
+            - 'run'
+            - 'tanstack_runner.js'
+    selection_node_router_init:
+        Image|endswith:
+            - '\node.exe'
+            - '\bun.exe'
+        CommandLine|contains:
+            - 'router_init.js'
+            - 'router_runtime.js'
+    selection_node_daemonized:
+        Image|endswith: '\node.exe'
+        CommandLine|contains: '__DAEMONIZED'
+    condition: selection_bun_runner or selection_node_router_init or selection_node_daemonized
+falsepositives:
+    - Unlikely
+level: critical
