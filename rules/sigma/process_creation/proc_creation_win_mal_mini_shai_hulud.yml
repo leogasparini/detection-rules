@@ -1,5 +1,5 @@
 title: Mini Shai-Hulud Supply-Chain Malware - Suspicious Process Execution
-id: 9b4f3d2e-6e8c-5fab-c7d9-2g3b4e5f6g7b
+id: e22134b4-c9ed-4e23-b0de-b04d336274e7
 status: experimental
 description: |
     Detects process execution patterns associated with the Mini Shai-Hulud malware, including lifecycle hook

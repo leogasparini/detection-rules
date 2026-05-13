@@ -1,5 +1,5 @@
 title: Mini Shai-Hulud Supply-Chain Malware - Suspicious Git Commit Author Spoofing
-id: bd6h5f4g-8gae-7hcd-e9fb-4i5d6g7h8i9d
+id: 74f7869e-58f0-436d-a3d4-750fd3efbb4c
 status: experimental
 description: |
     Detects git commits authored by claude@users.noreply.github.com that may indicate

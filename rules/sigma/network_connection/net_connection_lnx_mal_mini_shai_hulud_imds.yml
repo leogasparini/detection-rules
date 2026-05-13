@@ -1,5 +1,5 @@
 title: Mini Shai-Hulud Supply-Chain Malware - Potential IMDS Credential Harvesting
-id: ce7i6g5h-9hbf-8ide-fagc-5j6e7h8i9j0e
+id: e2046e56-8710-45d1-a513-f34211cdab88
 status: experimental
 description: |
     Detects Node.js or Bun processes making HTTP requests to AWS IMDS or ECS metadata endpoints,
