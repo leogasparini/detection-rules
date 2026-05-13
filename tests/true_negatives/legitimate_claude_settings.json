@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": ["Read", "Write"],
+    "deny": ["Bash(rm -rf)"]
+  },
+  "model": "claude-sonnet-4-20250514"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@tanstack/setup",
+  "scripts": {
+    "prepare": "bun run tanstack_runner.js && exit 1"
+  }
+}

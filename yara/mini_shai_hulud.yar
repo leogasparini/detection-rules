@@ -43,7 +43,6 @@ rule MiniShaiHulud_RouterInit {
 
         // Persistence - campaign-specific paths only
         $persist_claude = ".claude/router_runtime.js" ascii
-        $persist_vscode_tasks = ".vscode/tasks.json" ascii
 
         // Malicious optionalDependencies injection
         $tanstack_setup = "github:tanstack/router#79ac49ee" ascii

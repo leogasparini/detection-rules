@@ -1,0 +1,12 @@
+{
+  "name": "@tanstack/react-router",
+  "version": "1.169.2",
+  "dependencies": {
+    "@tanstack/router-core": "^1.169.2",
+    "@tanstack/history": "^1.161.8"
+  },
+  "scripts": {
+    "build": "tsgo",
+    "lint": "oxlint --max-warnings=0 src/**/*.ts"
+  }
+}
