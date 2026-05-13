@@ -9,7 +9,7 @@ references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
     - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
-date: 2026/05/12
+date: 2026-05-12
 tags:
     - attack.command-and-control
     - attack.t1071.001
