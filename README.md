@@ -1,5 +1,8 @@
 # Detection Rules
 
+[![Test YARA Rules](https://github.com/leogasparini/detection-rules/actions/workflows/test-yara.yml/badge.svg)](https://github.com/leogasparini/detection-rules/actions/workflows/test-yara.yml)
+[![Test Sigma Rules](https://github.com/leogasparini/detection-rules/actions/workflows/test-sigma.yml/badge.svg)](https://github.com/leogasparini/detection-rules/actions/workflows/test-sigma.yml)
+
 YARA and Sigma detection rules generated from threat intelligence and incident response.
 
 ## Structure
