@@ -1,0 +1,38 @@
+name: Test Sigma Rules
+
+on:
+  push:
+    paths:
+      - 'sigma/**'
+  pull_request:
+    paths:
+      - 'sigma/**'
+
+jobs:
+  sigma-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install sigma-cli
+        run: pip install sigma-cli pySigma-validators-sigmaHQ
+
+      - name: Validate Sigma rules
+        run: sigma check sigma/ -r
+
+      - name: Verify no multi-document YAML
+        run: |
+          fail=0
+          for f in $(find sigma/ -name '*.yml'); do
+            count=$(grep -c '^---' "$f" || true)
+            if [ "$count" -gt 1 ]; then
+              echo "FAIL: $f contains multiple YAML documents"
+              fail=1
+            fi
+          done
+          if [ "$fail" -eq 1 ]; then exit 1; fi
+          echo "All rules are single-document YAML."

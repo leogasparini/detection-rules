@@ -1,0 +1,47 @@
+name: Test YARA Rules
+
+on:
+  push:
+    paths:
+      - 'yara/**'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'yara/**'
+      - 'tests/**'
+
+jobs:
+  yara-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install YARA
+        run: sudo apt-get update && sudo apt-get install -y yara
+
+      - name: Compile rules
+        run: yara -C yara/mini_shai_hulud.yar
+
+      - name: True positives (must match)
+        run: |
+          output=$(yara yara/mini_shai_hulud.yar tests/true_positives/ -r)
+          echo "$output"
+          # Verify each true positive file triggers at least one rule
+          for f in tests/true_positives/*; do
+            basename=$(basename "$f")
+            if ! echo "$output" | grep -q "$basename"; then
+              echo "FAIL: $basename did not trigger any rule"
+              exit 1
+            fi
+          done
+          echo "All true positives matched."
+
+      - name: True negatives (must NOT match)
+        run: |
+          output=$(yara yara/mini_shai_hulud.yar tests/true_negatives/ -r 2>&1 || true)
+          if [ -n "$output" ]; then
+            echo "FAIL: False positives detected:"
+            echo "$output"
+            exit 1
+          fi
+          echo "No false positives."
