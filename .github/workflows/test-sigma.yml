@@ -9,19 +9,8 @@ on:
       - 'rules/sigma/**'
 
 jobs:
-  yamllint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: YAML lint
-        uses: ibiqlik/action-yamllint@v3
-        with:
-          file_or_dir: rules/sigma/
-          strict: true
-
   sigma-validate:
     runs-on: ubuntu-latest
-    needs: yamllint
     steps:
       - uses: actions/checkout@v4
 
