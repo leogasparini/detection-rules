@@ -22,7 +22,22 @@ jobs:
         run: pip install sigma-cli pySigma-validators-sigmaHQ
 
       - name: Validate Sigma rules
-        run: sigma check rules/sigma/ -r
+        run: |
+          fail=0
+          total=0
+          passed=0
+          for f in $(find rules/sigma/ -name '*.yml' | sort); do
+            total=$((total + 1))
+            if sigma check "$f" 2>&1; then
+              passed=$((passed + 1))
+            else
+              echo "FAIL: $f"
+              fail=1
+            fi
+          done
+          echo ""
+          echo "=== Results: $passed/$total rules valid ==="
+          if [ "$fail" -eq 1 ]; then exit 1; fi
 
       - name: Verify no multi-document YAML
         run: |
@@ -35,4 +50,36 @@ jobs:
             fi
           done
           if [ "$fail" -eq 1 ]; then exit 1; fi
-          echo "All rules are single-document YAML."
+
+      - name: Verify required fields
+        run: |
+          fail=0
+          for f in $(find rules/sigma/ -name '*.yml' | sort); do
+            for field in title id status description author date level; do
+              if ! grep -q "^${field}:" "$f"; then
+                echo "FAIL: $f missing required field: $field"
+                fail=1
+              fi
+            done
+            # Verify MITRE ATT&CK tags present
+            if ! grep -q "attack\.t[0-9]" "$f"; then
+              echo "WARN: $f has no MITRE ATT&CK technique tag"
+            fi
+          done
+          if [ "$fail" -eq 1 ]; then exit 1; fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Sigma Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Rules |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          for dir in rules/sigma/*/; do
+            category=$(basename "$dir")
+            count=$(find "$dir" -name '*.yml' | wc -l)
+            echo "| $category | $count |" >> $GITHUB_STEP_SUMMARY
+          done
+          total=$(find rules/sigma/ -name '*.yml' | wc -l)
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total rules:** $total" >> $GITHUB_STEP_SUMMARY

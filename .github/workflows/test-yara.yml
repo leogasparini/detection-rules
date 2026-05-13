@@ -19,29 +19,89 @@ jobs:
       - name: Install YARA
         run: sudo apt-get update && sudo apt-get install -y yara
 
-      - name: Compile rules
-        run: yara -C rules/yara/mini_shai_hulud.yar
-
-      - name: True positives (must match)
+      - name: Compile all rules
         run: |
-          output=$(yara rules/yara/mini_shai_hulud.yar tests/true_positives/ -r)
-          echo "$output"
-          # Verify each true positive file triggers at least one rule
-          for f in tests/true_positives/*; do
-            basename=$(basename "$f")
-            if ! echo "$output" | grep -q "$basename"; then
-              echo "FAIL: $basename did not trigger any rule"
-              exit 1
+          fail=0
+          for rule in rules/yara/*.yar; do
+            echo "Compiling: $rule"
+            if ! yara -C "$rule" 2>&1; then
+              echo "FAIL: $rule has syntax errors"
+              fail=1
             fi
           done
-          echo "All true positives matched."
+          if [ "$fail" -eq 1 ]; then exit 1; fi
+
+      - name: True positives (must match expected rules)
+        run: |
+          fail=0
+          total=0
+          passed=0
+
+          for rule in rules/yara/*.yar; do
+            output=$(yara "$rule" tests/true_positives/ -r 2>/dev/null)
+
+            for f in tests/true_positives/*; do
+              [ -f "$f" ] || continue
+              basename=$(basename "$f")
+              # Check if an .expected file exists with expected rule names
+              expected_file="${f}.expected"
+              if [ -f "$expected_file" ]; then
+                while IFS= read -r expected_rule; do
+                  [ -z "$expected_rule" ] && continue
+                  total=$((total + 1))
+                  if echo "$output" | grep -q "^${expected_rule} .*${basename}"; then
+                    passed=$((passed + 1))
+                  else
+                    echo "FAIL: $basename did not trigger expected rule: $expected_rule"
+                    fail=1
+                  fi
+                done < "$expected_file"
+              else
+                # Fallback: just verify the file triggers at least one rule
+                total=$((total + 1))
+                if echo "$output" | grep -q "$basename"; then
+                  passed=$((passed + 1))
+                else
+                  echo "FAIL: $basename did not trigger any rule in $(basename $rule)"
+                  fail=1
+                fi
+              fi
+            done
+          done
+
+          echo ""
+          echo "=== Results: $passed/$total assertions passed ==="
+          if [ "$fail" -eq 1 ]; then exit 1; fi
 
       - name: True negatives (must NOT match)
         run: |
-          output=$(yara rules/yara/mini_shai_hulud.yar tests/true_negatives/ -r 2>&1 || true)
-          if [ -n "$output" ]; then
-            echo "FAIL: False positives detected:"
-            echo "$output"
-            exit 1
-          fi
-          echo "No false positives."
+          fail=0
+          for rule in rules/yara/*.yar; do
+            output=$(yara "$rule" tests/true_negatives/ -r 2>/dev/null || true)
+            if [ -n "$output" ]; then
+              echo "FAIL: False positives from $(basename $rule):"
+              echo "$output"
+              fail=1
+            fi
+          done
+          if [ "$fail" -eq 1 ]; then exit 1; fi
+          echo "No false positives across all rules."
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## YARA Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Rule File | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          for rule in rules/yara/*.yar; do
+            if yara -C "$rule" >/dev/null 2>&1; then
+              echo "| $(basename $rule) | ✅ Valid |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| $(basename $rule) | ❌ Invalid |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          tp_count=$(ls tests/true_positives/ | wc -l)
+          tn_count=$(ls tests/true_negatives/ | wc -l)
+          echo "**True positives:** $tp_count samples | **True negatives:** $tn_count samples" >> $GITHUB_STEP_SUMMARY
