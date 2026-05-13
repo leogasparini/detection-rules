@@ -38,3 +38,23 @@ python scripts/02_convert_sigma_rule_simple.py rules/sigma/<category>/<rule>.yml
 - CVE references when applicable
 - One Sigma rule per file, no multi-document YAML
 - YARA rules require `meta.description` and `meta.author`
+
+## Local Testing
+
+### YARA
+```bash
+# Compile check
+yara rules/yara/mini_shai_hulud.yar /dev/null
+
+# True positives (expect matches)
+yara rules/yara/mini_shai_hulud.yar tests/true_positives/ -r
+
+# True negatives (expect NO matches)
+yara rules/yara/mini_shai_hulud.yar tests/true_negatives/ -r
+```
+
+### Sigma
+```bash
+pip install sigma-cli pySigma-validators-sigmaHQ
+sigma check rules/sigma/ -r
+```
