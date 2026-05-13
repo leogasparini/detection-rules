@@ -9,8 +9,19 @@ on:
       - 'rules/sigma/**'
 
 jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: YAML lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: rules/sigma/
+          strict: true
+
   sigma-validate:
     runs-on: ubuntu-latest
+    needs: yamllint
     steps:
       - uses: actions/checkout@v4
 
@@ -61,12 +72,34 @@ jobs:
                 fail=1
               fi
             done
-            # Verify MITRE ATT&CK tags present
             if ! grep -q "attack\.t[0-9]" "$f"; then
               echo "WARN: $f has no MITRE ATT&CK technique tag"
             fi
           done
           if [ "$fail" -eq 1 ]; then exit 1; fi
+
+      - name: Check for duplicate rule IDs
+        run: |
+          dupes=$(grep -rh "^id: " rules/sigma/ | sort | uniq -c | grep -vE "^\s+1 id: " || true)
+          if [ -n "$dupes" ]; then
+            echo "FAIL: Duplicate rule IDs found:"
+            echo "$dupes"
+            exit 1
+          fi
+          echo "No duplicate IDs."
+
+      - name: Validate against Sigma JSON schema
+        run: |
+          pip install check-jsonschema pyyaml
+          wget -q -O /tmp/sigma-schema.json https://raw.githubusercontent.com/SigmaHQ/sigma-specification/refs/tags/v2.1.0/json-schema/sigma-detection-rule-schema.json
+          fail=0
+          for f in $(find rules/sigma/ -name '*.yml' | sort); do
+            if ! check-jsonschema --schemafile /tmp/sigma-schema.json "$f" 2>&1; then
+              fail=1
+            fi
+          done
+          if [ "$fail" -eq 1 ]; then exit 1; fi
+          echo "All rules pass JSON schema validation."
 
       - name: Summary
         if: always()
