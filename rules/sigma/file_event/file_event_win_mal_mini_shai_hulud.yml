@@ -16,6 +16,7 @@ tags:
     - attack.execution
     - attack.t1059.007
     - attack.persistence
+    - attack.privilege-escalation
     - attack.t1547.004
     - attack.credential-access
     - attack.t1552.001
