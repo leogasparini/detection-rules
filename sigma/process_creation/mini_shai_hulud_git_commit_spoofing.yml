@@ -4,6 +4,7 @@ status: experimental
 description: Detects git commits authored by claude@users.noreply.github.com that may indicate repository poisoning by the Mini Shai-Hulud worm.
 references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
+    - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
 date: 2026-05-12
 tags:

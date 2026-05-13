@@ -3,8 +3,9 @@ rule MiniShaiHulud_RouterInit {
         description = "Detects Mini Shai-Hulud supply-chain malware (router_init.js / router_runtime.js / tanstack_runner.js)"
         author = "SecEng"
         date = "2026-05-12"
-        reference = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
-        severity = "critical"
+        reference1 = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference2 = "https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/"
+        severity = "high"
         mitre_attack = "T1195.002, T1059.007, T1552.001, T1071.001, T1547.004, T1496, T1580"
         mitre_tactics = "Initial Access, Execution, Credential Access, Command and Control, Persistence, Lateral Movement"
 
@@ -36,13 +37,13 @@ rule MiniShaiHulud_RouterInit {
         $oidc_token_url = "ACTIONS_ID_TOKEN_REQUEST_URL" ascii
         $npm_tokens_api = "registry.npmjs.org/-/npm/v1/tokens" ascii
 
-        // Repository poisoning
+        // Repository poisoning via GraphQL
         $graphql_commit = "createCommitOnBranch" ascii
         $spoof_author = "claude@users.noreply.github.com" ascii
 
-        // Persistence paths
+        // Persistence - campaign-specific paths only
         $persist_claude = ".claude/router_runtime.js" ascii
-        $persist_vscode = ".vscode/tasks.json" ascii
+        $persist_vscode_tasks = ".vscode/tasks.json" ascii
 
         // Malicious optionalDependencies injection
         $tanstack_setup = "github:tanstack/router#79ac49ee" ascii
@@ -62,7 +63,7 @@ rule MiniShaiHulud_RouterInit {
             // Match worm propagation
             ($npm_tokens_api and $oidc_token_req and $oidc_token_url) or
             // Match persistence + daemonization
-            ($daemon_env and ($persist_claude or $persist_vscode)) or
+            ($daemon_env and $persist_claude) or
             // Match repo poisoning
             ($graphql_commit and $spoof_author) or
             // Match tanstack-specific injection
@@ -77,7 +78,8 @@ rule MiniShaiHulud_PackageJson {
         description = "Detects package.json modified by Mini Shai-Hulud (malicious optionalDependencies)"
         author = "SecEng"
         date = "2026-05-12"
-        reference = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference1 = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference2 = "https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/"
         severity = "high"
         mitre_attack = "T1195.002, T1204.002"
         mitre_tactics = "Initial Access, Execution"
@@ -95,7 +97,8 @@ rule MiniShaiHulud_PrepareHook {
         description = "Detects malicious prepare lifecycle hook executing tanstack_runner.js"
         author = "SecEng"
         date = "2026-05-12"
-        reference = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference1 = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference2 = "https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/"
         severity = "high"
         mitre_attack = "T1059.007, T1204.002"
         mitre_tactics = "Execution"
@@ -107,20 +110,31 @@ rule MiniShaiHulud_PrepareHook {
         filesize < 10KB and $prepare
 }
 
-rule MiniShaiHulud_GuardrailsAI_Variant {
+rule MiniShaiHulud_PyPI_Dropper {
     meta:
-        description = "Detects guardrails-ai PyPI compromise variant downloading remote payload"
+        description = "Detects Mini Shai-Hulud PyPI variant (mistralai/guardrails-ai) downloading transformers.pyz from attacker infrastructure"
         author = "SecEng"
         date = "2026-05-12"
-        reference = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
-        severity = "critical"
+        reference1 = "https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack"
+        reference2 = "https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/"
+        severity = "high"
         mitre_attack = "T1195.002, T1105, T1059.006"
         mitre_tactics = "Initial Access, Execution, Command and Control"
 
     strings:
-        $url = "git-tanstack.com/transformers.pyz" ascii
+        $c2_domain = "git-tanstack.com" ascii
+        $payload_url = "git-tanstack.com/transformers.pyz" ascii
         $tmp_path = "/tmp/transformers.pyz" ascii
+        $subprocess = "subprocess.run" ascii
+        $urllib = "urllib.request.urlopen" ascii
 
     condition:
-        filesize < 5MB and any of them
+        filesize < 1MB and (
+            // Direct URL match
+            $payload_url or
+            // Attacker domain + staging path
+            ($c2_domain and $tmp_path) or
+            // Download + execute pattern with staging path
+            ($urllib and $tmp_path and $subprocess)
+        )
 }

@@ -5,6 +5,7 @@ description: Detects file creation events associated with the Mini Shai-Hulud np
 references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
     - https://socket.dev/supply-chain-attacks/mini-shai-hulud
+    - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
 date: 2026-05-12
 tags:
@@ -28,12 +29,14 @@ detection:
     selection_persistence_claude:
         TargetFilename|contains:
             - '\.claude\router_runtime.js'
-            - '\.claude\setup.mjs'
     selection_persistence_vscode:
         TargetFilename|contains|all:
             - '\.vscode\'
-            - 'setup.mjs'
-    condition: selection_malware_files or selection_persistence_claude or selection_persistence_vscode
+            - 'router_runtime.js'
+    selection_pypi_payload:
+        TargetFilename:
+            - '/tmp/transformers.pyz'
+    condition: selection_malware_files or selection_persistence_claude or selection_persistence_vscode or selection_pypi_payload
 falsepositives:
     - Legitimate TanStack router development (check file hash against IOCs)
-level: critical
+level: high
