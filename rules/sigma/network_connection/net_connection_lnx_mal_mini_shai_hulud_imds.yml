@@ -1,12 +1,14 @@
-title: Mini Shai-Hulud - IMDS Credential Harvesting from Node.js
+title: Mini Shai-Hulud Supply-Chain Malware - Potential IMDS Credential Harvesting
 id: ce7i6g5h-9hbf-8ide-fagc-5j6e7h8i9j0e
 status: experimental
-description: Detects Node.js or Bun processes making HTTP requests to AWS IMDS or ECS metadata endpoints, indicative of credential harvesting.
+description: |
+    Detects Node.js or Bun processes making HTTP requests to AWS IMDS or ECS metadata endpoints,
+    indicative of credential harvesting by the Mini Shai-Hulud malware.
 references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
     - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
-date: 2026-05-12
+date: 2026/05/12
 tags:
     - attack.credential-access
     - attack.t1552.005

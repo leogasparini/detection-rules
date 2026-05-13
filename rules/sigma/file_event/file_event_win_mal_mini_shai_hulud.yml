@@ -1,13 +1,15 @@
-title: Mini Shai-Hulud Supply-Chain Malware - File Creation
+title: Mini Shai-Hulud Supply-Chain Malware - Suspicious File Creation
 id: 8a3f2c1e-5d7b-4e9a-b6c8-1f2a3d4e5f6a
 status: experimental
-description: Detects file creation events associated with the Mini Shai-Hulud npm/PyPI supply-chain attack campaign targeting TanStack, Mistral AI, OpenSearch, and Guardrails AI packages.
+description: |
+    Detects file creation events associated with the Mini Shai-Hulud npm/PyPI supply-chain attack campaign
+    targeting TanStack, Mistral AI, OpenSearch, and Guardrails AI packages.
 references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
     - https://socket.dev/supply-chain-attacks/mini-shai-hulud
     - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
-date: 2026-05-12
+date: 2026/05/12
 tags:
     - attack.initial-access
     - attack.t1195.002
@@ -27,16 +29,14 @@ detection:
             - '\router_runtime.js'
             - '\tanstack_runner.js'
     selection_persistence_claude:
-        TargetFilename|contains:
-            - '\.claude\router_runtime.js'
+        TargetFilename|contains: '\.claude\router_runtime.js'
     selection_persistence_vscode:
         TargetFilename|contains|all:
             - '\.vscode\'
             - 'router_runtime.js'
     selection_pypi_payload:
-        TargetFilename:
-            - '/tmp/transformers.pyz'
-    condition: selection_malware_files or selection_persistence_claude or selection_persistence_vscode or selection_pypi_payload
+        TargetFilename: '/tmp/transformers.pyz'
+    condition: 1 of selection_*
 falsepositives:
-    - Legitimate TanStack router development (check file hash against IOCs)
+    - Unlikely
 level: high

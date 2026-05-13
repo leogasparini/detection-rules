@@ -1,12 +1,14 @@
-title: Mini Shai-Hulud Supply-Chain Malware - Process Execution
+title: Mini Shai-Hulud Supply-Chain Malware - Suspicious Process Execution
 id: 9b4f3d2e-6e8c-5fab-c7d9-2g3b4e5f6g7b
 status: experimental
-description: Detects process execution patterns associated with the Mini Shai-Hulud malware, including lifecycle hook execution, daemonized Node.js processes, and PyPI payload execution.
+description: |
+    Detects process execution patterns associated with the Mini Shai-Hulud malware, including lifecycle hook
+    execution, daemonized Node.js processes, and PyPI payload execution.
 references:
     - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
     - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
 author: SecEng
-date: 2026-05-12
+date: 2026/05/12
 tags:
     - attack.execution
     - attack.t1059.007
@@ -35,7 +37,7 @@ detection:
         CommandLine|contains|all:
             - 'python'
             - '/tmp/transformers.pyz'
-    condition: selection_bun_runner or selection_node_router_init or selection_node_daemonized or selection_pypi_payload
+    condition: 1 of selection_*
 falsepositives:
     - Unlikely
 level: high

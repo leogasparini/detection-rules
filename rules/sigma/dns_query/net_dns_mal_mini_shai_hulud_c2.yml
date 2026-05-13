@@ -1,0 +1,30 @@
+title: Mini Shai-Hulud Supply-Chain Malware - DNS Query to C2 Infrastructure
+id: ac5g4e3f-7f9d-6gbc-d8ea-3h4c5f6g7h8c
+status: experimental
+description: |
+    Detects DNS queries to attacker-controlled infrastructure used by the Mini Shai-Hulud campaign.
+    The domain git-tanstack.com is attacker-controlled. The filev2.getsession.org endpoint is used
+    for credential exfiltration via the Session protocol.
+references:
+    - https://socket.dev/blog/tanstack-npm-packages-compromised-mini-shai-hulud-supply-chain-attack
+    - https://safedep.io/mass-npm-supply-chain-attack-tanstack-mistral/
+author: SecEng
+date: 2026/05/12
+tags:
+    - attack.command-and-control
+    - attack.t1071.001
+    - attack.exfiltration
+    - attack.t1048
+logsource:
+    category: dns_query
+    product: windows
+detection:
+    selection_attacker_infra:
+        QueryName|endswith: '.git-tanstack.com'
+        QueryName: 'git-tanstack.com'
+    selection_session_exfil:
+        QueryName: 'filev2.getsession.org'
+    condition: 1 of selection_*
+falsepositives:
+    - Legitimate Session messenger file uploads (filev2.getsession.org) - correlate with process tree
+level: medium
