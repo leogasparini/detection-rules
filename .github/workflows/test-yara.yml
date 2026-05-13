@@ -42,6 +42,7 @@ jobs:
 
             for f in tests/true_positives/*; do
               [ -f "$f" ] || continue
+              [[ "$f" == *.expected ]] && continue
               basename=$(basename "$f")
               # Check if an .expected file exists with expected rule names
               expected_file="${f}.expected"
