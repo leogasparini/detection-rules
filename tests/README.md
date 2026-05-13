@@ -14,10 +14,10 @@ tests/
 
 ```bash
 # True positives (expect matches)
-yara yara/mini_shai_hulud.yar tests/true_positives/ -r
+yara rules/yara/mini_shai_hulud.yar tests/true_positives/ -r
 
 # True negatives (expect no matches)
-yara yara/mini_shai_hulud.yar tests/true_negatives/ -r
+yara rules/yara/mini_shai_hulud.yar tests/true_negatives/ -r
 ```
 
 ## Expected Results

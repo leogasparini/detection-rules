@@ -5,12 +5,14 @@ YARA and Sigma detection rules generated from threat intelligence and incident r
 ## Structure
 
 ```
-yara/          — File-based detection rules
-sigma/         — Log-based detection rules (one rule per file)
-  file_event/
-  process_creation/
-  network_connection/
-  dns_query/
+rules/
+  yara/        — File-based detection rules
+  sigma/       — Log-based detection rules (one rule per file)
+    file_event/
+    process_creation/
+    network_connection/
+    dns_query/
+tests/         — YARA true positive/negative test samples
 docs/          — Incident references
 ```
 
@@ -18,13 +20,13 @@ docs/          — Incident references
 
 ### YARA
 ```bash
-yara yara/<rule>.yar /path/to/scan -r
+yara rules/yara/<rule>.yar /path/to/scan -r
 ```
 
 ### Sigma
 Convert to CrowdStrike LogScale:
 ```bash
-python scripts/02_convert_sigma_rule_simple.py sigma/<category>/<rule>.yml
+python scripts/02_convert_sigma_rule_simple.py rules/sigma/<category>/<rule>.yml
 ```
 
 ## Rule Standards
