@@ -19,8 +19,9 @@ logsource:
     category: dns_query
     product: windows
 detection:
-    selection_attacker_infra:
+    selection_attacker_subdomain:
         QueryName|endswith: '.git-tanstack.com'
+    selection_attacker_apex:
         QueryName: 'git-tanstack.com'
     selection_session_exfil:
         QueryName: 'filev2.getsession.org'
