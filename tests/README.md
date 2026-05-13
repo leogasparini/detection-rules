@@ -8,15 +8,16 @@ Crafted samples for validating YARA and Sigma detection rules.
 tests/
   true_positives/   — Files that MUST trigger detection rules
   true_negatives/   — Files that MUST NOT trigger detection rules
+  expected/         — Expected rule mappings (one .expected file per true positive)
 ```
 
 ## Expected Rule Mapping
 
-Each true positive can have a `.expected` file listing the exact YARA rules it must trigger (one per line):
+Each true positive can have a corresponding file in `tests/expected/` listing the exact YARA rules it must trigger (one per line):
 
 ```
-tests/true_positives/malicious_package.json           — sample
-tests/true_positives/malicious_package.json.expected   — expected rules
+tests/true_positives/malicious_package.json        — sample
+tests/expected/malicious_package.json.expected      — expected rules
 ```
 
 If no `.expected` file exists, the CI just verifies the sample triggers at least one rule.

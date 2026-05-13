@@ -42,10 +42,9 @@ jobs:
 
             for f in tests/true_positives/*; do
               [ -f "$f" ] || continue
-              [[ "$f" == *.expected ]] && continue
               basename=$(basename "$f")
               # Check if an .expected file exists with expected rule names
-              expected_file="${f}.expected"
+              expected_file="tests/expected/${basename}.expected"
               if [ -f "$expected_file" ]; then
                 while IFS= read -r expected_rule; do
                   [ -z "$expected_rule" ] && continue
