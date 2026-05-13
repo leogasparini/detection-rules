@@ -24,7 +24,7 @@ jobs:
           fail=0
           for rule in rules/yara/*.yar; do
             echo "Compiling: $rule"
-            if ! yara -C "$rule" 2>&1; then
+            if ! yara "$rule" /dev/null 2>&1; then
               echo "FAIL: $rule has syntax errors"
               fail=1
             fi
@@ -95,7 +95,7 @@ jobs:
           echo "| Rule File | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
           for rule in rules/yara/*.yar; do
-            if yara -C "$rule" >/dev/null 2>&1; then
+            if yara "$rule" /dev/null >/dev/null 2>&1; then
               echo "| $(basename $rule) | ✅ Valid |" >> $GITHUB_STEP_SUMMARY
             else
               echo "| $(basename $rule) | ❌ Invalid |" >> $GITHUB_STEP_SUMMARY
