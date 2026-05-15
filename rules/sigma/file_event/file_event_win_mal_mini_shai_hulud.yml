@@ -16,8 +16,7 @@ tags:
     - attack.execution
     - attack.t1059.007
     - attack.persistence
-    - attack.privilege-escalation
-    - attack.t1547.004
+    - attack.t1554
     - attack.credential-access
     - attack.t1552.001
 logsource:
@@ -35,8 +34,6 @@ detection:
         TargetFilename|contains|all:
             - '\.vscode\'
             - 'router_runtime.js'
-    selection_pypi_payload:
-        TargetFilename: '/tmp/transformers.pyz'
     condition: 1 of selection_*
 falsepositives:
     - Unlikely
